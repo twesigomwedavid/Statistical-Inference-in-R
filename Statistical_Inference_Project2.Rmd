@@ -1,0 +1,126 @@
+---
+title: "Analysis of the Effect of Vitamin C on Tooth Growth in Guinea Pigs"
+author: "Twesigomwe David"
+date: "November 30, 2017"
+---
+
+### Overview:
+
+This part of the report consists of the analysis of the ToothGrowth data in the R datasets package. The effect of vitamin C on tooth growth is recorded in the given dataset in terms of length of odontoblasts. Different hypotheses are tested concerning the effect of the methods of delivering vitamin C as well as the different dose levels.
+
+```{r Loading dataset, echo=TRUE}
+data(ToothGrowth)
+```
+
+### Basic exploratory data analyses
+
+```{r loading ggplot2, echo=TRUE}
+library(ggplot2)
+```
+
+```{r chunk3, echo=TRUE}
+str(ToothGrowth)
+```
+
+```{r chunk4, echo=TRUE}
+dim(ToothGrowth)
+```
+
+```{r chunk5, echo=TRUE}
+names(ToothGrowth)
+```
+
+```{r chunk6, echo=TRUE}
+head(ToothGrowth)
+```
+
+### Basic Summary of the Data
+Specific summary information regarding tooth growth quantiles due to different methods of delivery and dosages is well displayed in Appendix II.
+
+We go on to obtain a visual impression of the relationship between length of odontoblasts with dose levels of vitamin C and method of delivery using a box plot.
+```{r chunk8, echo=TRUE}
+ggplot(data = ToothGrowth, mapping = aes(supp, len), size = 1) + geom_boxplot(aes(fill=supp)) + facet_wrap(~dose) + theme_bw()
+```
+
+From the boxplot, as the dosage increases, there is an increase in the length of odontoblasts(tooth growth increases). At lower dosages(0.5 and 1), the OJ induces more tooth growth than the VC. However, at high dosage(2), the median length of odontoblasts (indicative of tooth growth) appears to be almost the same.
+
+## Hypothesis Testing and Confidence Intervals
+### Hypothesis for the effect of the method of delivery at specific dose levels
+
+Null hypothesis; There is no difference in mean tooth growth when using either method (OJ and VC). 
+
+Alternate hypothesis; The difference in mean tooth growth for OJ and VC is not equal to 0.
+```{r Subsetting OJ and VC effect at different dose levels, echo=FALSE}
+VC_effect_.5 = ToothGrowth$len[ToothGrowth$supp == 'VC' & ToothGrowth$dose == .5]
+OJ_effect_.5 = ToothGrowth$len[ToothGrowth$supp == 'OJ' & ToothGrowth$dose == .5]
+VC_effect_1 = ToothGrowth$len[ToothGrowth$supp == 'VC' & ToothGrowth$dose == 1]
+OJ_effect_1 = ToothGrowth$len[ToothGrowth$supp == 'OJ' & ToothGrowth$dose == 1]
+VC_effect_2 = ToothGrowth$len[ToothGrowth$supp == 'VC' & ToothGrowth$dose == 2]
+OJ_effect_2 = ToothGrowth$len[ToothGrowth$supp == 'OJ' & ToothGrowth$dose == 2]
+```
+
+
+```{r chunk11, echo=TRUE}
+rbind(
+  t.test(OJ_effect_.5, VC_effect_.5, alternative = "two.sided", paired=FALSE, var.equal=FALSE)$conf[1:2], 
+  t.test(OJ_effect_1, VC_effect_1, alternative = "two.sided", paired=FALSE, var.equal=FALSE)$conf[1:2], 
+  t.test(OJ_effect_2, VC_effect_2, alternative = "two.sided", paired=FALSE, var.equal=FALSE)$conf[1:2])
+```
+We therefore fail to reject the null hypothesis for dose level of 2. However, we reject the null hypothesis for dose level 0.5 and 1.
+
+### Hypothesis involving dose level effect
+- Null hypothesis; There is no difference in mean tooth growth when dose level increases
+- Alternate hypothesis; The tooth growth at higher dose level of vitamin C is not equal to that at lower dose level of vitamin C
+
+```{r chunk13, echo=TRUE}
+rbind(
+  t.test(OJ_effect_1, OJ_effect_.5, alternative = "two.sided", paired=FALSE, var.equal=FALSE)$p.value[1:1], 
+  t.test(OJ_effect_2, OJ_effect_1, alternative = "two.sided", paired=FALSE, var.equal=FALSE)$p.value[1:1], 
+  t.test(VC_effect_1, VC_effect_.5, alternative = "two.sided", paired=FALSE, var.equal=FALSE)$p.value[1:1], 
+  t.test(VC_effect_2, VC_effect_1, alternative = "two.sided", paired=FALSE, var.equal=FALSE)$p.value[1:1])
+```
+
+The null hypothesis is rejected in all cases since the p-value is much less than alpha.
+
+## Conclusions
+- There is statistical evidence that, at dose level of 0.5 and 1, the mean tooth growth corresponding to delivery of vitamin C by orange juice is different from that when ascorbic acid is used. However, there is no difference in mean tooth growth by both methods at dose level of 2.
+- The mean tooth growth effect is higher for OJ than that for VC except at dose level 2, where there is no difference. 
+- For each method of delivery, the mean tooth growth at any lower dose level of vitamin C is different from that obtained at a corresponding higher dose level.
+- Mean tooth growth increases as dose level increases.
+
+
+
+### Appendix I
+
+### Assumptions:
+
+- The variables are independent and identically distributed
+
+- The length of odontoblasts from the ToothGrowth data is normally distributed
+
+- There is unequal variance in tooth growth corresponding to different dosage and method of delivery.
+
+- The data we are dealing with is unpaired since 60 guinea pigs were used.
+
+#### Rcode for subsetting
+
+```{r Code for Subsetting OJ and VC effect at different dose levels, echo=TRUE}
+VC_effect_.5 = ToothGrowth$len[ToothGrowth$supp == 'VC' & ToothGrowth$dose == .5]
+OJ_effect_.5 = ToothGrowth$len[ToothGrowth$supp == 'OJ' & ToothGrowth$dose == .5]
+VC_effect_1 = ToothGrowth$len[ToothGrowth$supp == 'VC' & ToothGrowth$dose == 1]
+OJ_effect_1 = ToothGrowth$len[ToothGrowth$supp == 'OJ' & ToothGrowth$dose == 1]
+VC_effect_2 = ToothGrowth$len[ToothGrowth$supp == 'VC' & ToothGrowth$dose == 2]
+OJ_effect_2 = ToothGrowth$len[ToothGrowth$supp == 'OJ' & ToothGrowth$dose == 2]
+```
+
+### Appendix II
+
+More on the summary of the Toothgrowth dataset
+
+```{r chunk7, echo=TRUE}
+summary(ToothGrowth)
+```
+
+```{r chunk9, echo=TRUE}
+by(ToothGrowth$len, INDICES = list(ToothGrowth$supp, ToothGrowth$dose), summary)
+```
